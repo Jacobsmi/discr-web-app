@@ -8,17 +8,29 @@ import {
   LinkOverlay,
   Text,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import LandingDrawer from "./LandingDrawer";
 import FlyingDisc from "../../images/FlyingDisc.svg";
+import { useAuth0 } from "@auth0/auth0-react";
 
 const Landing = () => {
   const [isLandingDrawerOpen, setIsLandingDrawerOpen] =
     useState<boolean>(false);
 
+  const { loginWithRedirect, user, getAccessTokenSilently } = useAuth0();
+
+  const processUser = async () => {
+    const basicAccessToken = await getAccessTokenSilently();
+    console.log(basicAccessToken);
+  };
+
+  if (user) {
+    processUser();
+  }
   const handleLandingDrawerClose = () => {
     setIsLandingDrawerOpen(false);
   };
+
   return (
     <Box w={"100vw"} h={"auto"}>
       <LandingDrawer
@@ -61,7 +73,13 @@ const Landing = () => {
           alignItems={"center"}
           mt={"65px"}
         >
-          <Button pl={2} backgroundColor={"#FF8C42"}>
+          <Button
+            pl={2}
+            backgroundColor={"#FF8C42"}
+            onClick={async () =>
+              await loginWithRedirect({ screen_hint: "signup" })
+            }
+          >
             Get Started <ArrowForwardIcon />
           </Button>
           <LinkBox>
