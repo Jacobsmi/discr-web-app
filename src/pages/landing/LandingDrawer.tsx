@@ -34,7 +34,8 @@ const LandingDrawer = ({
               w={"90%"}
               p={2}
               borderBottom={"1px solid black"}
-              onClick={async () => logout()}
+              _hover={{ backgroundColor: "grey" }}
+              onClick={() => logout()}
             >
               Sign Out
             </Box>

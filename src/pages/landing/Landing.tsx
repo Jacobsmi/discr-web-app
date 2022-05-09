@@ -8,25 +8,34 @@ import {
   LinkOverlay,
   Text,
 } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import React, { useState } from "react";
 import LandingDrawer from "./LandingDrawer";
 import FlyingDisc from "../../images/FlyingDisc.svg";
 import { useAuth0 } from "@auth0/auth0-react";
+import getUser from "../../api/user/getUser";
+import OnboardModal from "./OnboardModal";
 
 const Landing = () => {
   const [isLandingDrawerOpen, setIsLandingDrawerOpen] =
     useState<boolean>(false);
 
   const { loginWithRedirect, user, getAccessTokenSilently } = useAuth0();
-
-  const processUser = async () => {
-    const basicAccessToken = await getAccessTokenSilently();
-    console.log(basicAccessToken);
-  };
-
+  const [isOnboardModalShowing, setIsOnboardModalShowing] =
+    useState<boolean>(false);
   if (user) {
-    processUser();
+    (async () => {
+      const token = await getAccessTokenSilently();
+      const { response } = await getUser(token);
+      if (response.status === 404) {
+        setIsOnboardModalShowing(true);
+      } else if (response.status === 200) {
+        console.log("User is onboarded and can be redirected");
+      }
+    })();
+
+    console.log(user);
   }
+
   const handleLandingDrawerClose = () => {
     setIsLandingDrawerOpen(false);
   };
@@ -63,6 +72,10 @@ const Landing = () => {
         display={"flex"}
         flexDir={"column"}
       >
+        <OnboardModal
+          isOpen={isOnboardModalShowing}
+          setIsOnboardModalShowing={setIsOnboardModalShowing}
+        />
         <Image src={FlyingDisc} />
         <Text fontSize={"24px"} mt={"180px"}>
           Buy or Sell new or used disc golf equipment.
