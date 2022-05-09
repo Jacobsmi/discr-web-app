@@ -14,14 +14,17 @@ import FlyingDisc from "../../images/FlyingDisc.svg";
 import { useAuth0 } from "@auth0/auth0-react";
 import getUser from "../../api/user/getUser";
 import OnboardModal from "./OnboardModal";
+import { useNavigate } from "react-router";
 
 const Landing = () => {
   const [isLandingDrawerOpen, setIsLandingDrawerOpen] =
     useState<boolean>(false);
-
-  const { loginWithRedirect, user, getAccessTokenSilently } = useAuth0();
   const [isOnboardModalShowing, setIsOnboardModalShowing] =
     useState<boolean>(false);
+
+  const { loginWithRedirect, user, getAccessTokenSilently } = useAuth0();
+  const navigate = useNavigate();
+
   if (user) {
     (async () => {
       const token = await getAccessTokenSilently();
@@ -29,7 +32,7 @@ const Landing = () => {
       if (response.status === 404) {
         setIsOnboardModalShowing(true);
       } else if (response.status === 200) {
-        console.log("User is onboarded and can be redirected");
+        navigate("/home");
       }
     })();
 
