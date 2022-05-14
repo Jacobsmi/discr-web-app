@@ -8,17 +8,41 @@ import {
   LinkOverlay,
   Text,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import React, { useState } from "react";
 import LandingDrawer from "./LandingDrawer";
 import FlyingDisc from "../../images/FlyingDisc.svg";
+import { useAuth0 } from "@auth0/auth0-react";
+import getUser from "../../api/user/getUser";
+import OnboardModal from "./OnboardModal";
+import { useNavigate } from "react-router";
 
 const Landing = () => {
   const [isLandingDrawerOpen, setIsLandingDrawerOpen] =
     useState<boolean>(false);
+  const [isOnboardModalShowing, setIsOnboardModalShowing] =
+    useState<boolean>(false);
+
+  const { loginWithRedirect, user, getAccessTokenSilently } = useAuth0();
+  const navigate = useNavigate();
+
+  if (user) {
+    (async () => {
+      const token = await getAccessTokenSilently();
+      const { response } = await getUser(token);
+      if (response.status === 404) {
+        setIsOnboardModalShowing(true);
+      } else if (response.status === 200) {
+        navigate("/home");
+      }
+    })();
+
+    console.log(user);
+  }
 
   const handleLandingDrawerClose = () => {
     setIsLandingDrawerOpen(false);
   };
+
   return (
     <Box w={"100vw"} h={"auto"}>
       <LandingDrawer
@@ -51,6 +75,10 @@ const Landing = () => {
         display={"flex"}
         flexDir={"column"}
       >
+        <OnboardModal
+          isOpen={isOnboardModalShowing}
+          setIsOnboardModalShowing={setIsOnboardModalShowing}
+        />
         <Image src={FlyingDisc} />
         <Text fontSize={"24px"} mt={"180px"}>
           Buy or Sell new or used disc golf equipment.
@@ -61,7 +89,13 @@ const Landing = () => {
           alignItems={"center"}
           mt={"65px"}
         >
-          <Button pl={2} backgroundColor={"#FF8C42"}>
+          <Button
+            pl={2}
+            backgroundColor={"#FF8C42"}
+            onClick={async () =>
+              await loginWithRedirect({ screen_hint: "signup" })
+            }
+          >
             Get Started <ArrowForwardIcon />
           </Button>
           <LinkBox>

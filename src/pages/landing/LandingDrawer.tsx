@@ -1,3 +1,4 @@
+import { useAuth0 } from "@auth0/auth0-react";
 import {
   Drawer,
   DrawerBody,
@@ -8,6 +9,7 @@ import {
 } from "@chakra-ui/modal";
 import { Box, LinkBox, LinkOverlay, Text } from "@chakra-ui/react";
 import React from "react";
+
 const LandingDrawer = ({
   isOpen,
   onClose,
@@ -15,6 +17,7 @@ const LandingDrawer = ({
   isOpen: boolean;
   onClose: () => void;
 }) => {
+  const { loginWithRedirect, user, logout } = useAuth0();
   return (
     <Drawer isOpen={isOpen} onClose={onClose} placement={"top"}>
       <DrawerOverlay />
@@ -26,13 +29,46 @@ const LandingDrawer = ({
           </Text>
         </DrawerHeader>
         <DrawerBody display={"flex"} flexDir={"column"} alignItems={"center"}>
-          <Box w={"90%"} p={2} borderBottom={"1px solid black"}>
-            <Text>Login</Text>
-          </Box>
-          <Box w={"90%"} p={2} borderBottom={"1px solid black"}>
-            <Text>Sign Up</Text>
-          </Box>
-          <LinkBox w={"90%"} p={2} borderBottom={"1px solid black"}>
+          {user ? (
+            <Box
+              w={"90%"}
+              p={2}
+              borderBottom={"1px solid black"}
+              _hover={{ backgroundColor: "grey" }}
+              onClick={() => logout()}
+            >
+              Sign Out
+            </Box>
+          ) : (
+            <>
+              <Box
+                w={"90%"}
+                p={2}
+                borderBottom={"1px solid black"}
+                _hover={{ backgroundColor: "grey" }}
+                onClick={async () => await loginWithRedirect()}
+              >
+                <Text>Login</Text>
+              </Box>
+              <Box
+                w={"90%"}
+                p={2}
+                borderBottom={"1px solid black"}
+                _hover={{ backgroundColor: "grey" }}
+                onClick={async () =>
+                  await loginWithRedirect({ screen_hint: "signup" })
+                }
+              >
+                <Text>Sign Up</Text>
+              </Box>
+            </>
+          )}
+          <LinkBox
+            w={"90%"}
+            p={2}
+            borderBottom={"1px solid black"}
+            _hover={{ backgroundColor: "grey" }}
+          >
             <LinkOverlay href="mailto:thediscrapp@gmail.com?subject=Contact%20Us">
               <Text>Contact Us</Text>
             </LinkOverlay>
